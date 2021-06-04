@@ -1,3 +1,11 @@
+# build folders
+build
+cmake-build-debug
+
+# editor files
+.idea
+*.swp
+
 # Prerequisites
 *.d
 
