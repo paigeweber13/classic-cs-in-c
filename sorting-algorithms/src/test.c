@@ -29,7 +29,9 @@ void testSortMulti(SortAlgorithm sortAlgorithm, ArrayType
 
   // initialize all iterators
   size_t n = sizeInit;
-  size_t numIter = sizeFinal;
+  size_t numIter;
+  if (sizeFinal > 1000) numIter = sizeFinal / 100;
+  else numIter = 10;
   size_t resultsI = 0;
 
   while (n < sizeFinal) {
@@ -55,24 +57,20 @@ void testSortMulti(SortAlgorithm sortAlgorithm, ArrayType
     else strcpy(successString, "FAILURE");
 
     printf(FORMAT_STRING, successString, sortAlgorithmString, arrayTypeString,
-           n, numIter, runTime, runTime/ ((double)n) );
-//    resultsArray[resultsI].arraySize = n;
-//    resultsArray[resultsI].numRuns = numIter;
-//    resultsArray[resultsI].arrayType = arrayType;
-//    resultsArray[resultsI].sortAlgorithm = sortAlgorithm;
+           n, numIter, runTime, ((double)n)/runTime );
 
     // update all variables
     n *= 2;
-    numIter /= 2;
+    if (numIter > 10)
+      numIter /= 2;
     resultsI ++;
   }
 
   free(arr);
 }
 
-double testSortSingle(void* sortFunction, float* arr, size_t n,
-    size_t numIter) {
-  TestResult result;
+double testSortSingle(void (*sortFunction)(float*, size_t),
+                      float*arr, size_t n, size_t numIter) {
   const SECONDS_TO_MICROSECONDS = 1000000;
 
   // thanks to https://www.techiedelight.com/find-execution-time-c-program
@@ -80,13 +78,16 @@ double testSortSingle(void* sortFunction, float* arr, size_t n,
   struct timeval start, end;
 
   gettimeofday(&start, NULL);
-  insertionSort(arr, n);
+  for (size_t i = 0; i < numIter; i++) {
+    sortFunction(arr, n);
+  }
   gettimeofday(&end, NULL);
 
   double seconds = (double)(end.tv_sec - start.tv_sec);
   double micros = (double)(end.tv_usec - start.tv_usec);
 
-  double runTime = seconds + (micros / SECONDS_TO_MICROSECONDS);
+  double runTimeAvg = seconds + (micros / SECONDS_TO_MICROSECONDS);
+  runTimeAvg /= (double)numIter;
 
-  return runTime;
+  return runTimeAvg;
 }
