@@ -25,7 +25,11 @@ typedef unsigned long UL;
 // seed random numbers
 static UL z=362436069, w=521288629;
 
+// used for swap: only allocate once
+float temp;
+
 int compare(float a, float b);
+void swap(float* a, float* b);
 int isArraySorted(float* arr, size_t n);
 float* generateRandomArray(size_t n);
 float* generateSortedArray(size_t n);
