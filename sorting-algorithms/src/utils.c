@@ -22,35 +22,25 @@ int isArraySorted(float* arr, size_t n) {
   return TRUE;
 }
 
-float* generateRandomArray(size_t n) {
-  float* arr = (float*) aligned_alloc(ALIGNMENT, sizeof(float) * n);
-  srand(time(NULL));
+void generateRandomArray(float* arr, size_t n) {
+  // optional: seed fastRand to current time
+//  z = time(NULL);
 
   for (size_t i = 0; i < n; i++) {
     arr[i] = fastRand;
   }
-
-  return arr;
 }
 
-float* generateSortedArray(size_t n) {
-  float* arr = (float*) aligned_alloc(ALIGNMENT, sizeof(float) * n);
-
+void generateSortedArray(float* arr, size_t n) {
   for (size_t i = 0; i < n; i++) {
     arr[i] = i;
   }
-
-  return arr;
 }
 
-float* generateReverseSortedArray(size_t n) {
-  float* arr = (float*) aligned_alloc(ALIGNMENT, sizeof(float) * n);
-
+void generateReverseSortedArray(float* arr, size_t n) {
   for (size_t i = 0; i < n; i++) {
     arr[i] = n-i;
   }
-
-  return arr;
 }
 
 float* printArray(float* arr, size_t n){

@@ -1,5 +1,6 @@
 # Building
-Run the following commands in a terminal to build this software:
+`cmake` and `make` are required. Run the following commands in a terminal to
+build this software:
 
 ```bash
 mkdir build
@@ -10,3 +11,7 @@ make
 
 This will produce an executable titled `sorting-algorithms` in the directory 
 `build`.
+
+# TODO:
+- [ ] function pointer does not work
+- [ ] always runs only one iteration (bring back min/max/avg)

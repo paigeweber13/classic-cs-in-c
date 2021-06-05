@@ -22,6 +22,17 @@ typedef unsigned long UL;
 #define wnew (w=18000*(w&65535)+(w>>16))
 #define MWC ((znew<<16)+wnew )
 #define fastRand MWC
+
+// enums for sorting types array types
+typedef enum {
+  sortInsertion, sortMerge, sortMergeParallel, sortHeap, sortQuick,
+  sortQuickModified
+} SortAlgorithm;
+
+typedef enum {
+  initRandom, initSorted, initReverse
+} ArrayType;
+
 // seed random numbers
 static UL z=362436069, w=521288629;
 
@@ -31,9 +42,13 @@ float temp;
 int compare(float a, float b);
 void swap(float* a, float* b);
 int isArraySorted(float* arr, size_t n);
-float* generateRandomArray(size_t n);
-float* generateSortedArray(size_t n);
-float* generateReverseSortedArray(size_t n);
+
+// these functions expect memory to already be allocated, they just change
+// the contents
+void generateRandomArray(float* arr, size_t n);
+void generateSortedArray(float* arr, size_t n);
+void generateReverseSortedArray(float* arr, size_t n);
+
 float* printArray(float* arr, size_t n);
 
 #endif //SORTING_ALGORITHMS_UTILS_H
