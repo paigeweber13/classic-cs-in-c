@@ -2,17 +2,17 @@
 // Created by Paige Riley Weber on 6/5/21.
 //
 
-#include <stdio.h>
 #include "sort-algorithms.h"
 
 #include "test.h"
+#include <stdlib.h>
 
 const char RESULT_HEADER[200] = " status,sorting_algorithm,array_type,"
                                 "array_size,num_iterations,total_time_s,"
                                 "min_time_s,max_time_s,avg_time_s,"
                                 "avg_elements_per_second\n";
 const char FORMAT_STRING[200] = "%7s,%17s,%10s,"
-                                "%10u,%14u,%12f,"
+                                "%10lu,%14lu,%12f,"
                                 "%10f,%10f,%10f,"
                                 "%23f\n";
 
@@ -71,10 +71,6 @@ void testSortMulti(SortAlgorithm sortAlgorithm, ArrayType
     if (isArraySorted(arr, n)) strcpy(successString, "SUCCESS");
     else strcpy(successString, "FAILURE");
 
-    const char RESULT_HEADER[200] = " status,sorting_algorithm,array_type,"
-                                    "array_size,num_iterations,total_time_s,"
-                                    "min_time_s,max_time_s,avg_time_s,"
-                                    "avg_elements_per_second\n";
     printf(FORMAT_STRING, successString, sortAlgorithmString, arrayTypeString,
            n, numIter, runTime.runTimeTotal, runTime.runTimeMin,
            runTime.runTimeMax, runTime.runTimeAvg,
@@ -92,7 +88,7 @@ void testSortMulti(SortAlgorithm sortAlgorithm, ArrayType
 RunTimeAggregate testSortSingle(void (*sortFunction)(float*, size_t),
                       void (*generatorFunction)(float*, size_t),
                       float*arr, size_t n, size_t numIter) {
-  const SECONDS_TO_MICROSECONDS = 1000000;
+  const size_t SECONDS_TO_MICROSECONDS = 1000000;
 
   double seconds, micros, runTime;
 

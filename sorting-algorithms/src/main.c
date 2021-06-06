@@ -13,6 +13,7 @@
 #define TEST_SIZE 10
 
 int main() {
+  /*
 //  float* arr = (float*) aligned_alloc(ALIGNMENT, sizeof(float) * n);
   float* arr = aligned_alloc(ALIGNMENT, sizeof(float) * TEST_SIZE);
 
@@ -41,6 +42,7 @@ int main() {
   printArray(arr, TEST_SIZE);
   printf("Is array sorted after sort? %d\n", isArraySorted(arr, TEST_SIZE));
   free(arr);
+  */
 
 
   printResultHeader();
