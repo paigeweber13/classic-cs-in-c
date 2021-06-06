@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "insertion-sort.h"
+#include "sort-algorithms.h"
 #include "test.h"
 #include "utils.h"
 
@@ -44,8 +44,10 @@ int main() {
 
 
   printResultHeader();
-  const size_t maxSize = 10000000;
+//  const size_t maxSize = 128001;
+  const size_t maxSize = 64001;
   const size_t initSize = 1000;
+  testSortMulti(sortHeap, initRandom, initSize, maxSize);
   testSortMulti(sortInsertion, initRandom, initSize, maxSize);
 
   return 0;

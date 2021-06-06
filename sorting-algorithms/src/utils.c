@@ -6,7 +6,7 @@
 #include "utils.h"
 
 int compare(float a, float b) {
-  return a < b ? TRUE : FALSE;
+  return a <= b ? TRUE : FALSE;
 }
 
 void swap(float* a, float* b) {
