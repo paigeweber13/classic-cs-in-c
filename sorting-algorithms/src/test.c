@@ -17,6 +17,7 @@ const char FORMAT_STRING[200] = "%7s,%17s,%10s,"
 
 void printResultHeader() {
   printf(RESULT_HEADER);
+  fflush(stdout);
 }
 
 void testSortMulti(SortAlgorithm sortAlgorithm, ArrayType
@@ -90,6 +91,7 @@ void testSortMulti(SortAlgorithm sortAlgorithm, ArrayType
            n, numIter, runTime.runTimeTotal, runTime.runTimeMin,
            runTime.runTimeMax, runTime.runTimeAvg,
            ((double)n) / runTime.runTimeAvg );
+    fflush(stdout);
 
     // update all variables
     n *= 2;
