@@ -2,10 +2,6 @@
 // Created by Paige Riley Weber on 6/4/21.
 //
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "sort-algorithms.h"
 #include "test.h"
 #include "utils.h"
@@ -13,44 +9,29 @@
 #define TEST_SIZE 10
 
 int main() {
-  /*
-//  float* arr = (float*) aligned_alloc(ALIGNMENT, sizeof(float) * n);
-  float* arr = aligned_alloc(ALIGNMENT, sizeof(float) * TEST_SIZE);
+  #define SUPPORTEDALGOS_N 4
+  const SortAlgorithm supportedAlgos[SUPPORTEDALGOS_N] = 
+    {sortInsertion, sortMerge, sortMergeParallel, sortHeap};
 
-  generateRandomArray(arr, TEST_SIZE);
-  printArray(arr, TEST_SIZE);
-  printf("Is random array sorted? %d\n", isArraySorted(arr, TEST_SIZE));
-  insertionSort(arr, TEST_SIZE);
-  printArray(arr, TEST_SIZE);
-  printf("Is array sorted after sort? %d\n", isArraySorted(arr, TEST_SIZE));
-  free(arr);
-  printf("\n");
+  #define ARRAYSFORTEST_N 3
+  const ArrayType arraysForTest[ARRAYSFORTEST_N] = 
+    {initRandom, initSorted, initReverse};
 
-  generateSortedArray(arr, TEST_SIZE);
-  printArray(arr, TEST_SIZE);
-  printf("Is sorted array sorted? %d\n", isArraySorted(arr, TEST_SIZE));
-  insertionSort(arr, TEST_SIZE);
-  printArray(arr, TEST_SIZE);
-  printf("Is array sorted after sort? %d\n", isArraySorted(arr, TEST_SIZE));
-  free(arr);
-  printf("\n");
-
-  generateReverseSortedArray(arr, TEST_SIZE);
-  printArray(arr, TEST_SIZE);
-  printf("Is reverse array sorted? %d\n", isArraySorted(arr, TEST_SIZE));
-  insertionSort(arr, TEST_SIZE);
-  printArray(arr, TEST_SIZE);
-  printf("Is array sorted after sort? %d\n", isArraySorted(arr, TEST_SIZE));
-  free(arr);
-  */
-
+  const size_t maxSize = 1000000;
+  // const size_t maxSize = 10000000; // for longer tests
+  const size_t maxSizeInsertion = 16001;
+  // const size_t maxSizeInsertion = 64001; // for longer tests
+  const size_t initSize = 1000;
 
   printResultHeader();
-//  const size_t maxSize = 128001;
-  const size_t maxSize = 64001;
-  const size_t initSize = 1000;
-  testSortMulti(sortHeap, initRandom, initSize, maxSize);
-  testSortMulti(sortInsertion, initRandom, initSize, maxSize);
+
+  for (size_t i = 0; i < SUPPORTEDALGOS_N; i++)
+    for (size_t j = 0; j < ARRAYSFORTEST_N; j++)
+      if(supportedAlgos[i] == sortInsertion) 
+        testSortMulti(supportedAlgos[i], arraysForTest[j], initSize, 
+          maxSizeInsertion);
+      else
+        testSortMulti(supportedAlgos[i], arraysForTest[j], initSize, maxSize);
 
   return 0;
 }

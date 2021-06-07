@@ -14,6 +14,97 @@ void insertionSort(float* arr, size_t n) {
   }
 }
 
+// assumes a and b are contiguous in memory, with 'a' first
+void merge(float * a, size_t a_n, float * b, size_t b_n, float * buffer) {
+  size_t a_i = 0; // index of array a
+  size_t b_i = 0; // index of array b
+
+  size_t buffer_i = 0;
+
+  while(a_i < a_n && b_i < b_n) {
+    if(a[a_i] > b[b_i]) {
+      // then b should come first
+      buffer[buffer_i] = b[b_i];
+      b_i++;
+    }
+    else {
+      // else a is <= b so we put a next
+      buffer[buffer_i] = a[a_i];
+      a_i++;
+    }
+
+    buffer_i++;
+  }
+
+  // if either 'a' or 'b' has items left, copy them to 'merged'
+  if(a_i < a_n) {
+    memcpy(buffer + buffer_i, a + a_i, sizeof(float) * (a_n - a_i));
+  }
+  if(b_i < b_n) {
+    memcpy(buffer + buffer_i, b + b_i, sizeof(float) * (b_n - b_i));
+  }
+
+  // then move stuff from 'buffer' back into original array
+  memcpy(a, buffer, sizeof(float) * (a_n+b_n));
+}
+
+// recursively merge-sorts an array in-place.
+void mergesort(float * array, float * buffer, size_t n) {
+  if(n == 1)
+    return;
+  
+  size_t left_n = n/2;
+  float * left_array = array;
+  float * left_buffer = buffer;
+
+  size_t right_n = n - n/2;
+  float * right_array = array + left_n;
+  float * right_buffer = buffer + left_n;
+
+  mergesort(left_array, left_buffer, left_n);
+  mergesort(right_array, right_buffer, right_n);
+
+  merge(left_array, left_n, right_array, right_n, buffer);
+}
+
+// helper function to match signature of other functions
+void mergeSort(float* arr, size_t n) {
+  float * buffer = aligned_alloc(ALIGNMENT, sizeof(float) * n);
+
+  mergesort(arr, buffer, n);
+
+  free(buffer);
+}
+
+void mergesort_parallel(float * array, float * buffer, size_t n) {
+  // there is no free lunch: this parameter will need tuning per-machine
+  const size_t MIN_PARALLEL_N = (size_t)1e6;
+
+  if (n < MIN_PARALLEL_N) {
+    // for small n, use sequential code. Avoid creating thousands of tasks.
+    mergesort(array, buffer, n/2);
+    mergesort(array + n/2, buffer + n/2, n - n/2);
+  }
+  else {
+    #pragma omp task
+    mergesort_parallel(array, buffer, n/2);
+
+    #pragma omp task
+    mergesort_parallel(array + n/2, buffer + n/2, n - n/2);
+  }
+
+  #pragma omp taskwait
+  merge(array, n/2, array + n/2, n - n/2, buffer);
+}
+
+void mergeSortParallel(float* arr, size_t n) {
+  float * buffer = aligned_alloc(ALIGNMENT, sizeof(float) * n);
+
+  mergesort_parallel(arr, buffer, n);
+
+  free(buffer);
+}
+
 // turn array[root:n] into max heap
 void heapify(float* arr, size_t n, size_t root) {
   int largest = root;

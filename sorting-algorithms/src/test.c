@@ -5,7 +5,6 @@
 #include "sort-algorithms.h"
 
 #include "test.h"
-#include <stdlib.h>
 
 const char RESULT_HEADER[200] = " status,sorting_algorithm,array_type,"
                                 "array_size,num_iterations,total_time_s,"
@@ -62,6 +61,14 @@ void testSortMulti(SortAlgorithm sortAlgorithm, ArrayType
       case sortHeap:
         sortFunction = heapSort;
         strcpy(sortAlgorithmString, "heap");
+        break;
+      case sortMerge:
+        sortFunction = mergeSort;
+        strcpy(sortAlgorithmString, "merge");
+        break;
+      case sortMergeParallel:
+        sortFunction = mergeSortParallel;
+        strcpy(sortAlgorithmString, "merge_parallel");
         break;
     }
 
