@@ -227,5 +227,6 @@ void quicksort_modified(float* arr, size_t i, size_t n) {
 
 // wrapper to match function signature
 void quickSortModified(float* arr, size_t n) {
-  quicksort_modified(arr, 0, n);
+  if (n < 16) insertionSort(arr, n);
+  else quicksort_modified(arr, 0, n);
 }
