@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include "utils.h"
 
-int compare(float a, float b) {
-  return a <= b ? TRUE : FALSE;
-}
-
 void swap(float* a, float* b) {
   temp = *a;
   *a = *b;
@@ -17,7 +13,7 @@ void swap(float* a, float* b) {
 
 int isArraySorted(float* arr, size_t n) {
   for (size_t i = 0; i < n-1; i++) {
-    if (!compare(arr[i], arr[i+1])) return FALSE;
+    if (arr[i] > arr[i+1]) return FALSE;
   }
   return TRUE;
 }
