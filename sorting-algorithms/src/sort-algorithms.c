@@ -146,7 +146,6 @@ void heapSort(float* arr, size_t n) {
 
 // recursive part of quicksort
 void quicksort(float* arr, size_t i, size_t n) {
-  // printf("i: %lu, n: %lu\n", i, n);
   if ((n - i) < 2) return;
 
   size_t pivot_i = i;
@@ -170,4 +169,65 @@ void quicksort(float* arr, size_t i, size_t n) {
 // wrapper to match function signature
 void quickSort(float* arr, size_t n) {
   quicksort(arr, 0, n);
+}
+
+// recursive part of modified quicksort
+void quicksort_modified(float* arr, size_t i, size_t n) {
+  if ((n - i) < 2) return;
+
+  size_t hi = n-1;
+  size_t lo = i;
+  size_t mid = lo + ((hi - lo) / 2);
+
+  // these three if statements ensure elements at lo, mid, and hi are sorted in
+  // relation to each other. This way we know that mid is our median-of-three.
+  if (arr[mid] < arr[lo]) swap(&arr[mid], &arr[lo]);
+  if (arr[hi] < arr[lo]) swap(&arr[hi], &arr[lo]);
+  if (arr[mid] > arr[hi]) swap(&arr[mid], &arr[hi]);
+
+  // printf("QUICKSORT for i = %lu and n = %lu\n", i, n);
+  // printf("lo=%lu, mid=%lu, hi=%lu\n", lo, mid, hi);
+  // printf("arr[lo=%f, arr[mid=%f, arr[hi=%f\n", arr[lo], arr[mid], arr[hi]);
+  // printf("Array before sorting\n");
+  // printArray(arr, 10);
+
+  lo++;
+  hi--;
+
+  while (lo < hi) {
+    if (lo < mid) {
+      if (arr[lo] > arr[mid]) {
+        swap(&arr[mid], &arr[mid-1]);
+        mid--;
+
+        if (lo != mid) swap(&arr[lo], &arr[mid+1]);
+      }
+      else lo++;
+    }
+
+    if (hi > mid) {
+      if (arr[hi] < arr[mid]) {
+        swap(&arr[mid], &arr[mid+1]);
+        mid++;
+
+        if (hi != mid) swap(&arr[hi], &arr[mid-1]);
+      }
+      else hi--;
+    }
+
+  }
+  // printf("after sorting:\n");
+  // printf("lo=%lu, mid=%lu, hi=%lu\n", lo, mid, hi);
+  // printf("Array after sorting\n");
+  // printArray(arr, 10);
+  // printf("\n\n");
+
+  // quicksort left and right halves
+  quicksort_modified(arr, i, mid);
+  quicksort_modified(arr, mid+1, n);
+}
+
+// wrapper to match function signature
+void quickSortModified(float* arr, size_t n) {
+  quicksort_modified(arr, 0, n);
 }

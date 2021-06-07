@@ -74,6 +74,10 @@ void testSortMulti(SortAlgorithm sortAlgorithm, ArrayType
         sortFunction = quickSort;
         strcpy(sortAlgorithmString, "quick");
         break;
+      case sortQuickModified:
+        sortFunction = quickSortModified;
+        strcpy(sortAlgorithmString, "quick_modified");
+        break;
     }
 
     runTime = testSortSingle(sortFunction, generatorFunction, arr, n,

@@ -9,9 +9,15 @@
 #define TEST_SIZE 10
 
 int main() {
-  #define SUPPORTEDALGOS_N 4
+  #define SUPPORTEDALGOS_N 1
   const SortAlgorithm supportedAlgos[SUPPORTEDALGOS_N] = 
-    {sortInsertion, sortMerge, sortMergeParallel, sortHeap};
+    {sortQuickModified};
+  // const size_t maxSize = 11;
+  // const size_t initSize = 10;
+
+  // #define SUPPORTEDALGOS_N 5
+  // const SortAlgorithm supportedAlgos[SUPPORTEDALGOS_N] = 
+  //   {sortInsertion, sortMerge, sortMergeParallel, sortHeap, sortQuick};
 
   #define ARRAYSFORTEST_N 3
   const ArrayType arraysForTest[ARRAYSFORTEST_N] = 
