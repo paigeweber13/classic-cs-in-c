@@ -70,6 +70,10 @@ void testSortMulti(SortAlgorithm sortAlgorithm, ArrayType
         sortFunction = mergeSortParallel;
         strcpy(sortAlgorithmString, "merge_parallel");
         break;
+      case sortQuick:
+        sortFunction = quickSort;
+        strcpy(sortAlgorithmString, "quick");
+        break;
     }
 
     runTime = testSortSingle(sortFunction, generatorFunction, arr, n,

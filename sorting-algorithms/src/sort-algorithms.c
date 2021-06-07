@@ -81,7 +81,7 @@ void mergesort_parallel(float * array, float * buffer, size_t n) {
   const size_t MIN_PARALLEL_N = (size_t)1e6;
 
   if (n < MIN_PARALLEL_N) {
-    // for small n, use sequential code. Avoid creating thousands of tasks.
+    // for small n, use sequential code. Avoid creating very small tasks.
     mergesort(array, buffer, n/2);
     mergesort(array + n/2, buffer + n/2, n - n/2);
   }
@@ -142,4 +142,32 @@ void heapSort(float* arr, size_t n) {
     // heapify with 0 as root. Only heapify to i
     heapify(arr, i, 0);
   }
+}
+
+// recursive part of quicksort
+void quicksort(float* arr, size_t i, size_t n) {
+  // printf("i: %lu, n: %lu\n", i, n);
+  if ((n - i) < 2) return;
+
+  size_t pivot_i = i;
+
+  for (size_t j = i+1; j < n; j++) {
+    if (arr[j] < arr[pivot_i]) {
+      swap(&arr[pivot_i], &arr[pivot_i+1]);
+      pivot_i++;
+
+      if(j != pivot_i) {
+        swap(&arr[j], &arr[pivot_i-1]);
+      }
+    }
+  }
+
+  // quicksort left and right halves
+  quicksort(arr, i, pivot_i);
+  quicksort(arr, pivot_i+1, n);
+}
+
+// wrapper to match function signature
+void quickSort(float* arr, size_t n) {
+  quicksort(arr, 0, n);
 }

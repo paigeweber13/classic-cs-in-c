@@ -14,5 +14,6 @@ void insertionSort(float* arr, size_t n);
 void mergeSort(float* arr, size_t n);
 void mergeSortParallel(float* arr, size_t n);
 void heapSort(float* arr, size_t n);
+void quickSort(float* arr, size_t n);
 
 #endif //SORTING_ALGORITHMS_SORT_ALGORITHMS_H

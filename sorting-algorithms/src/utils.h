@@ -8,8 +8,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-typedef unsigned long UL;
-
 #define TRUE 1
 #define FALSE 0
 
@@ -34,7 +32,7 @@ typedef enum {
 } ArrayType;
 
 // seed random numbers
-static UL z=362436069, w=521288629;
+static size_t z=362436069, w=521288629;
 
 // used for swap: only allocate once
 float temp;
