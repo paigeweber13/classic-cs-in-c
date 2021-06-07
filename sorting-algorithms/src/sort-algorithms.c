@@ -194,28 +194,26 @@ void quicksort_modified(float* arr, size_t i, size_t n) {
   lo++;
   hi--;
 
-  while (lo < hi) {
-    if (lo < mid) {
-      if (arr[lo] > arr[mid]) {
-        swap(&arr[mid], &arr[mid-1]);
-        mid--;
+  while (lo < mid) {
+    if (arr[lo] > arr[mid]) {
+      swap(&arr[mid], &arr[mid-1]);
+      mid--;
 
-        if (lo != mid) swap(&arr[lo], &arr[mid+1]);
-      }
-      else lo++;
+      if (lo != mid) swap(&arr[lo], &arr[mid+1]);
     }
-
-    if (hi > mid) {
-      if (arr[hi] < arr[mid]) {
-        swap(&arr[mid], &arr[mid+1]);
-        mid++;
-
-        if (hi != mid) swap(&arr[hi], &arr[mid-1]);
-      }
-      else hi--;
-    }
-
+    else lo++;
   }
+
+  while (hi > mid) {
+    if (arr[hi] < arr[mid]) {
+      swap(&arr[mid], &arr[mid+1]);
+      mid++;
+
+      if (hi != mid) swap(&arr[hi], &arr[mid-1]);
+    }
+    else hi--;
+  }
+  
   // printf("after sorting:\n");
   // printf("lo=%lu, mid=%lu, hi=%lu\n", lo, mid, hi);
   // printf("Array after sorting\n");
