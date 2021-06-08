@@ -23,10 +23,10 @@ This project covers the implementation, computational complexity, and real-world
 C was chosen as the language each algorithm was written in.
 
 TODO: 
- - [ ] data structures used
- - [ ] complexity analysis
+ - [x] data structures used
+ - [x] complexity analysis
  - [ ] results
- - [ ] code
+ - [x] code
 """
 
 # ╔═╡ aa573021-c79a-46c1-b4e0-021e4c3434ed
@@ -301,12 +301,25 @@ void quicksort_modified(float* arr, size_t i, size_t n) {
 md"""
 # Complexity Analysis
 
+Complexity for my specific implementations are covered below, with notes to explain key points. Except where indicated, all measures are time complexity.
+
+Algorithm | Average-case | Worst-case | Best-case | Space complexity | Notes
+----------|--------------|------------|-----------|------------------|-------
+Insertion sort|Θ(n^2)|O(n^2)|Ω(n)|O(1)|Best-case is when list is already sorted
+Merge sort|Θ(n*log(n))|O(n*log(n))|Ω(n*log(n))|O(n)|Space complexity is O(n) because of the buffer. Space complexity is the same in implementations where each recursive call creates new arrays that are merged and deleted later.
+Heap sort|Θ(n*log(n))|O(n*log(n))|Ω(n*log(n))|O(1)|
+Quick sort|Θ(n*log(n))|O(n^2)|Ω(n*log(n))|O(1)|Worst-case is triggered for both sorted and reverse-sorted lists.
+Quick sort (modified)|Θ(n*log(n))|O(n^2)|Ω(n*log(n))|O(1)|Even though worst-case is technically still O(n^2), it's unlikely that we'll hit that case unless the range of values is very small. That would require all three items considered in the median to be equal and very small or very large compared to the rest of the items.
 
 """
 
 # ╔═╡ 3a653422-4f34-42fe-a974-ff1a57d85a9b
 md"""
 # Results: Performance
+
+To investigate performance, first an overview of the average-case performance of each algorithm is considered. After that, plots are generated which demonstrate special case performance and draw other interesting comparisons (like sequential vs parallel merge-sort).
+
+Julia is used for data processing and visualization. Comments are used liberally to explain code.
 
 # TODO: performance
 - [ ] graph of mergesort: sequential vs parallel
@@ -315,13 +328,74 @@ md"""
 """
 
 # ╔═╡ 3b969425-8ee1-4bfd-af35-27238bf7ae7b
-# load csv data
+# load csv data, process
 begin
 	CSV_FILE_NAME = "results-2021-06-07_0842.csv"
 	
 	df = CSV.File(CSV_FILE_NAME, normalizenames=true) |> DataFrame
-	df.status
+	df.array_type
+	
+	# strip whitespace from columns with strings
+	for col in [:sorting_algorithm, :array_type]
+		# '@.' syntax applies the broadcast operator ('.') to all operations
+		# on that line
+		@. df[!, col] = strip(df[!, col])
+	end
+	
 end
+
+# ╔═╡ 48ffcfe0-f854-4fac-b071-897561e233cc
+md"""
+## Average-case Performance Comparison
+"""
+
+# ╔═╡ 0e259561-54b0-47cb-88f4-7663731d2191
+begin
+	# for now, only consider randomly-initialized arrays (the average case)
+	df_randomarray = filter(:array_type => a -> strip(a) == "random", df)
+	
+	# and draw a line graph
+	plot(
+		df_randomarray.array_size,
+		df_randomarray.avg_elements_per_second,
+		group = df_randomarray.sorting_algorithm,
+		line = :path,
+		title = "Average-case sort performance, higher is better",
+		xaxis = ("Number of elements", :log10),
+		yaxis = ("Performance (elements/s)", :log10),
+		bg = RGB(0.2, 0.2, 0.2)
+	)
+end
+
+# ╔═╡ fb6d4070-922a-4bbe-84ef-b8524e883dbb
+md"""
+Insertion sort is dramatically slower than all the other algorithms (note the logarithmic scale!). It's so slow, in fact, that sorting a list of size $6.4e4$ elements took 4.1 seconds on my Ryzen 5 3600. By comparison, the second-slowest algorithm (heapsort) took less than 7 *milliseconds*.
+
+Because each sort was repeated 10 times, insertion sort quickly became unreasonably slow, and thus it was only tested for arrays of size less than $1e5$.
+
+Before moving on to individual algorithm performance, let's look at the same comparison with insertion sort removed.
+"""
+
+# ╔═╡ 7b64a513-938a-41ea-9722-1816d10bf9bd
+begin
+	df_randomarray_noinsertion = filter(:sorting_algorithm => s -> s != "insertion", 
+		df_randomarray)
+	plot(
+		df_randomarray_noinsertion.array_size,
+		df_randomarray_noinsertion.avg_elements_per_second,
+		group = df_randomarray_noinsertion.sorting_algorithm,
+		line = :path,
+		title = "Average-case sort performance, higher is better",
+		xaxis = ("Number of elements", :log10),
+		yaxis = ("Performance (elements/s)", :log10),
+		bg = RGB(0.2, 0.2, 0.2)
+	)
+end
+
+# ╔═╡ 73c15edb-3185-426b-9f7a-85619bd84df4
+md"""
+This gives us a much clearer picture of the performance of the sane algorithms. Naturally, performance decreases as array size increases and data must be loaded from RAM. However, heapsort drops off significantly more starting at around $50^6$.
+"""
 
 # ╔═╡ Cell order:
 # ╠═b2ca8e4b-fe95-43cb-a5bc-605f69d0d581
@@ -335,3 +409,8 @@ end
 # ╠═3a653422-4f34-42fe-a974-ff1a57d85a9b
 # ╠═d6a054e2-c7bf-11eb-3732-c3135a35f956
 # ╠═3b969425-8ee1-4bfd-af35-27238bf7ae7b
+# ╠═48ffcfe0-f854-4fac-b071-897561e233cc
+# ╠═0e259561-54b0-47cb-88f4-7663731d2191
+# ╠═fb6d4070-922a-4bbe-84ef-b8524e883dbb
+# ╠═7b64a513-938a-41ea-9722-1816d10bf9bd
+# ╠═73c15edb-3185-426b-9f7a-85619bd84df4
