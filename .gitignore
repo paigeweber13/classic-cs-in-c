@@ -6,6 +6,10 @@ cmake-build-debug
 .idea
 *.swp
 
+# reports, archives
+*.pdf
+*.zip
+
 # Prerequisites
 *.d
 
