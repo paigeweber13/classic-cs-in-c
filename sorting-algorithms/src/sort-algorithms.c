@@ -189,8 +189,8 @@ void quickSort(float* arr, size_t n) {
 // recursive part of modified quicksort
 void quicksort_modified(float* arr, size_t i, size_t n) {
   // insertion sort on small parts
-  if (n < 16) {
-    insertionSort(arr, n);
+  if (n - i < 16) {
+    insertionSort(arr + i, n-i);
     return;
   }
 
