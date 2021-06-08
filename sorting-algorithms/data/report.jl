@@ -22,11 +22,6 @@ This project covers the implementation, computational complexity, and real-world
 
 C was chosen as the language each algorithm was written in.
 
-TODO: 
- - [x] data structures used
- - [x] complexity analysis
- - [ ] results
- - [x] code
 """
 
 # ╔═╡ aa573021-c79a-46c1-b4e0-021e4c3434ed
@@ -320,17 +315,12 @@ md"""
 To investigate performance, first an overview of the average-case performance of each algorithm is considered. After that, plots are generated which demonstrate special case performance and draw other interesting comparisons (like sequential vs parallel merge-sort).
 
 Julia is used for data processing and visualization. Comments are used liberally to explain code.
-
-# TODO: performance
-- [ ] graph of mergesort: sequential vs parallel
-- [ ] graph of rabdom/average case for each
-- [ ] graph of cases when special cases are significantly different from random case
 """
 
 # ╔═╡ 3b969425-8ee1-4bfd-af35-27238bf7ae7b
 # load csv data, process
 begin
-	CSV_FILE_NAME = "results-2021-06-07_0842.csv"
+	CSV_FILE_NAME = "results-2021-06-07_2021.csv"
 	
 	df = CSV.File(CSV_FILE_NAME, normalizenames=true) |> DataFrame
 	df.array_type
@@ -394,23 +384,194 @@ end
 
 # ╔═╡ 73c15edb-3185-426b-9f7a-85619bd84df4
 md"""
-This gives us a much clearer picture of the performance of the sane algorithms. Naturally, performance decreases as array size increases and data must be loaded from RAM. However, heapsort drops off significantly more starting at around $50^6$.
+This gives us a much clearer picture of the performance of the sane algorithms. Naturally, performance decreases as array size increases and data must be loaded from RAM. However, heapsort drops off significantly more starting at around $50^6$. Also notable is the fact that mergesort and mergesort parallel seem to have nearly identical performance, as do quicksort and quicksort-modified. Let's hone in on those cases now.
+
+## Mergesort vs Parallel Mergsort
+"""
+
+# ╔═╡ ad68f965-fa47-4e38-aad1-94ebe182c62f
+begin
+	# for now, only consider randomly-initialized arrays (the average case)
+	df_randomarray_mergesort = filter(
+		:sorting_algorithm => s -> s == "merge" || s == "merge_parallel", 
+		df_randomarray)
+	
+	plot(
+		df_randomarray_mergesort.array_size,
+		df_randomarray_mergesort.avg_elements_per_second,
+		group = df_randomarray_mergesort.sorting_algorithm,
+		line = :path,
+		title = "Average-case sort performance, higher is better",
+		xaxis = ("Number of elements", :log10),
+		yaxis = ("Performance (elements/s)"),
+		bg = RGB(0.2, 0.2, 0.2)
+	)
+end
+
+# ╔═╡ 814dabd4-e6c3-42e4-8138-959c85e896ec
+md"""
+Even with the return to a linear scale, its impossible to tell the lines apart. Performance is effectively identical. Let's also inspect the raw data for the largest test.
+"""
+
+# ╔═╡ 9a1a3824-8a05-44c0-9c5c-8b7f1033f188
+filter(:array_size => n -> n == 32768000, 
+	df_randomarray_mergesort)
+
+# ╔═╡ cca83604-fbd6-4d57-80a3-c7023a2f8768
+md"""
+The average time taken within 0.1%, so it's safe to say the performance is effectively identical.
+
+Some quick tests suggest that for very large arrays the parallel code does show speedup. But showing speedup is outside the scope of this project, so no further work will be done here.
+
+For now, let's return to quicksort.
+
+## Quicksort vs Modified Quicksort
+"""
+
+# ╔═╡ 96a438f8-a8b9-43f7-bf78-6847a5aa83b5
+begin
+	# for now, only consider randomly-initialized arrays (the average case)
+	df_randomarray_quicksort = filter(
+		:sorting_algorithm => s -> s == "quick" || s == "quick_modified", 
+		df_randomarray)
+	
+	plot(
+		df_randomarray_quicksort.array_size,
+		df_randomarray_quicksort.avg_elements_per_second,
+		group = df_randomarray_quicksort.sorting_algorithm,
+		line = :path,
+		title = "Average-case sort performance, higher is better",
+		xaxis = ("Number of elements", :log10),
+		yaxis = ("Performance (elements/s)"),
+		bg = RGB(0.2, 0.2, 0.2)
+	)
+end
+
+# ╔═╡ dcbe0287-9253-4f8f-9682-dd4c4a967063
+md"""
+Here the performance does seem to be slightly better for modified quicksort, especially on smaller arrays. Let's inspect the raw data for a small and large case.
+"""
+
+# ╔═╡ e2fbdeb3-881a-4ccc-8a29-5f3bc5b4b03c
+begin
+	df_rq_short = filter(:array_size => n -> n == 32768000 || n == 32000, 
+		df_randomarray_quicksort)
+	sort!(df_rq_short, [:array_size])
+end
+
+# ╔═╡ 2d15b628-660b-4cb8-9169-a1ee45eb82b6
+md"""
+Modified quicksort is slightly (~2% faster). This is statistically significant but not really helpful in the real world.
+
+Our final comparison will investigate cases were the worst- or best- cases are significantly differnt from the average-case.
+
+## Special Cases
+
+### Sorting a Sorted List
+
+All algorithms except naïve quicksort perform dramatically better on sorted lists than random lists. As a result, this case is usually unintersting and will only be considered for quicksort and insertion sort (where performance on a sorted list is `O(n)`, and therefore *especially* fast).
+
+### Insertion Sort
+"""
+
+# ╔═╡ c2c99efa-5ec8-41e4-a97f-e0a100f690e5
+begin
+	# only looking at insertion sort
+	df_insertion = filter(:sorting_algorithm => s -> s == "insertion", df)
+	
+	plot(
+		df_insertion.array_size,
+		df_insertion.avg_elements_per_second,
+		group = df_insertion.array_type,
+		line = :path,
+		title = "Average-case sort performance, higher is better",
+		xaxis = ("Number of elements", :log10),
+		yaxis = ("Performance (elements/s)", :log10),
+		bg = RGB(0.2, 0.2, 0.2)
+	)
+end
+
+# ╔═╡ 8d26154e-f838-4bc2-a588-419f57ca78b0
+md"""
+When the list is already sorted, insertion performance is `O(n)`! However, when the list is reversed, performance is about half the average case.
+
+### Quicksort
+"""
+
+# ╔═╡ e6fff4bd-5dad-4372-976a-55aecbe52faa
+begin
+	# only looking at quick sort
+	df_quick = filter(:sorting_algorithm => s -> s == "quick", df)
+	
+	plot(
+		df_quick.array_size,
+		df_quick.avg_elements_per_second,
+		group = df_quick.array_type,
+		line = :path,
+		title = "Average-case sort performance, higher is better",
+		xaxis = ("Number of elements", :log10),
+		yaxis = ("Performance (elements/s)", :log10),
+		bg = RGB(0.2, 0.2, 0.2)
+	)
+end
+
+# ╔═╡ a93735a6-f8b2-4ceb-84d5-bde4b89a929e
+md"""
+This graph clearly shows the dramatic reduction in performance on sorted (and reverse-sorted) lists. It was so slow that, like insertion sort, arrays larger than $6.4e4$ were not tested.
+
+### Quicksort and Modified Quicksort
+"""
+
+# ╔═╡ 815e9742-c22f-404c-9ff0-b33c8b674173
+begin
+	# only looking at quick sort
+	df_quick_m = filter(:sorting_algorithm => s -> s == "quick" || s == "quick_modified", df)
+	
+	plot(
+		df_quick_m.array_size,
+		df_quick_m.avg_elements_per_second,
+		group = df_quick_m.array_type,
+		line = :path,
+		title = "Average-case sort performance, higher is better",
+		xaxis = ("Number of elements", :log10),
+		yaxis = ("Performance (elements/s)", :log10),
+		bg = RGB(0.2, 0.2, 0.2)
+	)
+end
+
+# ╔═╡ 0d687829-1c16-4cd4-9395-c4c248a72cd4
+md"""
+Our modified quicksort does perform much better on these sorted lists, though! Using the median-of-three strategy to choose a pivot effectively solves quicksort's biggest issue.
 """
 
 # ╔═╡ Cell order:
-# ╠═b2ca8e4b-fe95-43cb-a5bc-605f69d0d581
-# ╠═aa573021-c79a-46c1-b4e0-021e4c3434ed
+# ╟─b2ca8e4b-fe95-43cb-a5bc-605f69d0d581
+# ╟─aa573021-c79a-46c1-b4e0-021e4c3434ed
 # ╟─e72161bc-dab5-4585-9cf8-bc32ec84e988
 # ╟─3723574c-959a-4b04-91bf-6207c4ff6fd5
 # ╟─209e2ecb-af90-4c48-a583-e9dda280198f
 # ╟─fd11a60a-c3dd-4bb1-aeb3-e3be1b87f4f7
 # ╟─1ca8d8c9-fdd1-4172-aa75-9206c48e0212
-# ╠═72ad1767-88e1-457c-8a76-33f119c7cc15
-# ╠═3a653422-4f34-42fe-a974-ff1a57d85a9b
+# ╟─72ad1767-88e1-457c-8a76-33f119c7cc15
+# ╟─3a653422-4f34-42fe-a974-ff1a57d85a9b
 # ╠═d6a054e2-c7bf-11eb-3732-c3135a35f956
 # ╠═3b969425-8ee1-4bfd-af35-27238bf7ae7b
-# ╠═48ffcfe0-f854-4fac-b071-897561e233cc
+# ╟─48ffcfe0-f854-4fac-b071-897561e233cc
 # ╠═0e259561-54b0-47cb-88f4-7663731d2191
-# ╠═fb6d4070-922a-4bbe-84ef-b8524e883dbb
+# ╟─fb6d4070-922a-4bbe-84ef-b8524e883dbb
 # ╠═7b64a513-938a-41ea-9722-1816d10bf9bd
-# ╠═73c15edb-3185-426b-9f7a-85619bd84df4
+# ╟─73c15edb-3185-426b-9f7a-85619bd84df4
+# ╠═ad68f965-fa47-4e38-aad1-94ebe182c62f
+# ╟─814dabd4-e6c3-42e4-8138-959c85e896ec
+# ╠═9a1a3824-8a05-44c0-9c5c-8b7f1033f188
+# ╟─cca83604-fbd6-4d57-80a3-c7023a2f8768
+# ╠═96a438f8-a8b9-43f7-bf78-6847a5aa83b5
+# ╟─dcbe0287-9253-4f8f-9682-dd4c4a967063
+# ╠═e2fbdeb3-881a-4ccc-8a29-5f3bc5b4b03c
+# ╟─2d15b628-660b-4cb8-9169-a1ee45eb82b6
+# ╠═c2c99efa-5ec8-41e4-a97f-e0a100f690e5
+# ╟─8d26154e-f838-4bc2-a588-419f57ca78b0
+# ╠═e6fff4bd-5dad-4372-976a-55aecbe52faa
+# ╟─a93735a6-f8b2-4ceb-84d5-bde4b89a929e
+# ╠═815e9742-c22f-404c-9ff0-b33c8b674173
+# ╟─0d687829-1c16-4cd4-9395-c4c248a72cd4
