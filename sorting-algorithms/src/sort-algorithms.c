@@ -50,9 +50,12 @@ void merge(float * a, size_t a_n, float * b, size_t b_n, float * buffer) {
 
 // recursively merge-sorts an array in-place.
 void mergesort(float * array, float * buffer, size_t n) {
+  // base case: an array of size 1 is always sorted
   if(n == 1)
     return;
   
+  // create new pointers and sizes for the left and right halves. This is how
+  // we "split" the array
   size_t left_n = n/2;
   float * left_array = array;
   float * left_buffer = buffer;
@@ -61,9 +64,11 @@ void mergesort(float * array, float * buffer, size_t n) {
   float * right_array = array + left_n;
   float * right_buffer = buffer + left_n;
 
+  // mergesort each half
   mergesort(left_array, left_buffer, left_n);
   mergesort(right_array, right_buffer, right_n);
 
+  // merge the sorted portions back together
   merge(left_array, left_n, right_array, right_n, buffer);
 }
 
@@ -93,6 +98,7 @@ void mergesort_parallel(float * array, float * buffer, size_t n) {
     mergesort_parallel(array + n/2, buffer + n/2, n - n/2);
   }
 
+  // taskwait ensures that both mergesorts are completed before merging
   #pragma omp taskwait
   merge(array, n/2, array + n/2, n - n/2, buffer);
 }
@@ -124,9 +130,12 @@ void heapify(float* arr, size_t n, size_t root) {
 
 void heapSort(float* arr, size_t n) {
   // heapify all subtrees (create initial max heap)
-  size_t currentRoot;
 
-  // we want to move from right to left
+  // we want to move from right to left, because big numbers will be towards
+  // the right
+
+  // start at i = n/2 because anything at indices greater than n/2 will be a
+  // leaf node
   for (size_t i = n/2 - 1; i > 0; i--) {
     heapify(arr, n, i);
   }
@@ -148,20 +157,26 @@ void heapSort(float* arr, size_t n) {
 void quicksort(float* arr, size_t i, size_t n) {
   if ((n - i) < 2) return;
 
+  // pivot is first item
   size_t pivot_i = i;
 
   for (size_t j = i+1; j < n; j++) {
+    // check if other is less than pivot. If so, move pivot to the right and
+    // place other immediately before pivot.
     if (arr[j] < arr[pivot_i]) {
       swap(&arr[pivot_i], &arr[pivot_i+1]);
       pivot_i++;
 
+      // this case is important! This covers the instance where j immediately
+      // follows the pivot, and so moving the pivot also swapped other before
+      // the pivot.
       if(j != pivot_i) {
         swap(&arr[j], &arr[pivot_i-1]);
       }
     }
   }
 
-  // quicksort left and right halves
+  // recursively quicksort left and right halves
   quicksort(arr, i, pivot_i);
   quicksort(arr, pivot_i+1, n);
 }
@@ -173,8 +188,13 @@ void quickSort(float* arr, size_t n) {
 
 // recursive part of modified quicksort
 void quicksort_modified(float* arr, size_t i, size_t n) {
-  if ((n - i) < 2) return;
+  // insertion sort on small parts
+  if (n < 16) {
+    insertionSort(arr, n);
+    return;
+  }
 
+  // the three indices for median-of-three
   size_t hi = n-1;
   size_t lo = i;
   size_t mid = lo + ((hi - lo) / 2);
@@ -185,15 +205,10 @@ void quicksort_modified(float* arr, size_t i, size_t n) {
   if (arr[hi] < arr[lo]) swap(&arr[hi], &arr[lo]);
   if (arr[mid] > arr[hi]) swap(&arr[mid], &arr[hi]);
 
-  // printf("QUICKSORT for i = %lu and n = %lu\n", i, n);
-  // printf("lo=%lu, mid=%lu, hi=%lu\n", lo, mid, hi);
-  // printf("arr[lo=%f, arr[mid=%f, arr[hi=%f\n", arr[lo], arr[mid], arr[hi]);
-  // printf("Array before sorting\n");
-  // printArray(arr, 10);
-
   lo++;
   hi--;
 
+  // check left side of pivot for anything that is larger than pivot
   while (lo < mid) {
     if (arr[lo] > arr[mid]) {
       swap(&arr[mid], &arr[mid-1]);
@@ -204,6 +219,7 @@ void quicksort_modified(float* arr, size_t i, size_t n) {
     else lo++;
   }
 
+  // check right side of pivot for anything smaller than pivot
   while (hi > mid) {
     if (arr[hi] < arr[mid]) {
       swap(&arr[mid], &arr[mid+1]);
@@ -213,20 +229,13 @@ void quicksort_modified(float* arr, size_t i, size_t n) {
     }
     else hi--;
   }
-  
-  // printf("after sorting:\n");
-  // printf("lo=%lu, mid=%lu, hi=%lu\n", lo, mid, hi);
-  // printf("Array after sorting\n");
-  // printArray(arr, 10);
-  // printf("\n\n");
 
-  // quicksort left and right halves
+  // recursively quicksort left and right halves
   quicksort_modified(arr, i, mid);
   quicksort_modified(arr, mid+1, n);
 }
 
 // wrapper to match function signature
 void quickSortModified(float* arr, size_t n) {
-  if (n < 16) insertionSort(arr, n);
-  else quicksort_modified(arr, 0, n);
+  quicksort_modified(arr, 0, n);
 }
